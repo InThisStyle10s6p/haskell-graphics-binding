@@ -1,0 +1,59 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 3636ab33eaa34d9b392877a7756cc42e52771409e19077578329d961338a3ae1
+
+name:           graphics-binding
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/githubuser/graphics-binding#readme>
+homepage:       https://github.com/githubuser/graphics-binding#readme
+bug-reports:    https://github.com/githubuser/graphics-binding/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2018 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/graphics-binding
+
+library
+  hs-source-dirs:
+      lib
+  build-depends:
+      GLFW-b
+    , ObjectName
+    , StateVar
+    , base >=4.7 && <5
+    , bytestring
+    , classy-prelude
+    , foreign-resource
+    , gl
+    , lens
+    , linear
+    , vector
+  exposed-modules:
+      Graphics.Binding
+  other-modules:
+      Graphics.Binding.GLFW.Window
+      Graphics.Binding.OpenGL.BufferObject
+      Graphics.Binding.OpenGL.Program
+      Graphics.Binding.OpenGL.Rendering
+      Graphics.Binding.OpenGL.Shader
+      Graphics.Binding.OpenGL.Synchro
+      Graphics.Binding.OpenGL.Texture
+      Graphics.Binding.OpenGL.Types
+      Graphics.Binding.OpenGL.Uniform
+      Graphics.Binding.OpenGL.Utils
+      Graphics.Binding.OpenGL.VertexArray
+      Graphics.Binding.OpenGL.Window
+      Paths_graphics_binding
+  default-language: Haskell2010
