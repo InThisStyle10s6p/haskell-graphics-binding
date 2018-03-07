@@ -1,4 +1,14 @@
-module Graphics.Binding (module X) where
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
+module Graphics.Binding
+  ( module X
+  , UniformBlock(..)
+  , bindBlock
+  , bindFullDynamicUniformBuffer
+  ) where
 
 import Graphics.GL.Types as X
   ( GLfloat
@@ -30,6 +40,9 @@ import Graphics.Binding.OpenGL.Synchro as X
 
 import Graphics.Binding.GLFW.Window as X
 
+------
+import Control.Monad.IO.Class
+import Data.Typeable
 {-
 fencePersistentBuffer :: MonadIO m => PersistentBuffer a -> m (PersistentBuffer a)
 fencePersistentBuffer pb = do
@@ -63,6 +76,18 @@ persistentBufferMapFlag = BufferMapFlags MapWrite True True False False False Fa
 persistentBufferAttribFlag :: BufferAttribFlags
 persistentBufferAttribFlag = BufferAttribFlags MapWrite True True False False
 
+class BufferObject a where
+  bindUniformBuffer_ :: UniformBufferBindingLocation -> a -> BufferOffset -> BufferSize -> IO ()
 
-
+bindUniformBuffer :: (MonadIO m, BufferObject a) => UniformBufferBindingLocation -> a -> BufferOffset -> BufferSize -> m ()
+bindUniformBuffer loc a off size = liftIO $ bindUniformBuffer_ loc a off size
 -}
+
+class UniformBlock a where
+  bindBlock_ :: Program -> a -> IO ()
+
+bindBlock :: (MonadIO m, UniformBlock a) => Program -> a -> m ()
+bindBlock prg = liftIO . bindBlock_ prg
+
+bindFullDynamicUniformBuffer :: forall a m. (MonadIO m, GLWritable a) => UniformBufferBindingLocation -> DynamicBuffer a -> m ()
+bindFullDynamicUniformBuffer loc (DynamicBuffer name) = bindUniformBuffer loc name 0 (gSize (Proxy :: Proxy a))

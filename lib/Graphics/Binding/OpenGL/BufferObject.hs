@@ -137,7 +137,9 @@ marshalBufferMapFlags BufferMapFlags {..}
     bfle  = if _bufferMapFlagsMapFlushExplicit then GL_MAP_FLUSH_EXPLICIT_BIT else 0
     bmun  = if _bufferMapFlagsMapUnsynchronized then GL_MAP_UNSYNCHRONIZED_BIT else 0
 
-newtype DynamicBuffer a = DynamicBuffer { _getDynamicBufferName :: BufferName } deriving (Eq, Ord, Show)
+newtype DynamicBuffer a = DynamicBuffer
+  { _getDynamicBufferName :: BufferName
+  } deriving (Eq, Ord, Show)
 
 instance GLWritable a => ForeignName (DynamicBuffer a) () where
   genName_ _ = do
@@ -150,7 +152,6 @@ instance GLWritable a => ForeignName (DynamicBuffer a) () where
   isName_ = isName_ . _getDynamicBufferName
 
   deleteNames_ = deleteNames_ . fmap _getDynamicBufferName
-
 ------
 
 initBufferName :: MonadIO m

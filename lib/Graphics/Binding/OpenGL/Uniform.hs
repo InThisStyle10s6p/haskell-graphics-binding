@@ -21,12 +21,6 @@ class DefaultBlockUniform a where
   type DefaultBlockUniformContents a
   defaultBlockUniform :: MonadIO m => Program -> a -> DefaultBlockUniformContents a -> m ()
 
-class UniformBlock a b where
-  bindBlock_ :: a -> b -> IO ()
-
-bindBlock :: (UniformBlock a b, MonadIO m) => a -> b -> m ()
-bindBlock a = liftIO . bindBlock_ a
-
 uniformBlockBinding :: MonadIO m => Program -> UniformBlockLocation -> UniformBufferBindingLocation -> m ()
 uniformBlockBinding (Program a) (UniformBlockLocation b) (UniformBufferBindingLocation c) = glUniformBlockBinding a b c
 
