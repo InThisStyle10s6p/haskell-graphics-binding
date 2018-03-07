@@ -89,5 +89,5 @@ class UniformBlock a where
 bindBlock :: (MonadIO m, UniformBlock a) => Program -> a -> m ()
 bindBlock prg = liftIO . bindBlock_ prg
 
-bindFullDynamicUniformBuffer :: forall a m b. (MonadIO m, GLWritable a) => b -> UniformBufferBindingLocation -> DynamicBuffer a -> m b
-bindFullDynamicUniformBuffer b loc (DynamicBuffer name) = bindUniformBuffer loc name 0 (gSize (Proxy :: Proxy a)) >> return b
+bindFullDynamicUniformBuffer :: forall a m. (MonadIO m, GLWritable a) => UniformBufferBindingLocation -> DynamicBuffer a -> m ()
+bindFullDynamicUniformBuffer loc (DynamicBuffer name) = bindUniformBuffer loc name 0 (gSize (Proxy :: Proxy a))
