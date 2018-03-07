@@ -2,16 +2,16 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3636ab33eaa34d9b392877a7756cc42e52771409e19077578329d961338a3ae1
+-- hash: 41500e60aa2514030d531666532486c1f42a613e0dc9c714a906489a87560c9b
 
-name:           graphics-binding
+name:           haskell-graphics-binding
 version:        0.1.0.0
-description:    Please see the README on Github at <https://github.com/githubuser/graphics-binding#readme>
-homepage:       https://github.com/githubuser/graphics-binding#readme
-bug-reports:    https://github.com/githubuser/graphics-binding/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2018 Author name here
+description:    Please see the README on Github at <https://github.com/InThisStyle10s6p/haskell-graphics-binding#readme>
+homepage:       https://github.com/https://github.com/InThisStyle10s6p/haskell-graphics-binding#readme
+bug-reports:    https://github.com/https://github.com/InThisStyle10s6p/haskell-graphics-binding/issues
+author:         In This Style 10/6
+maintainer:     In This Style 10/6
+copyright:      2018 In This Style 10/6
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -23,19 +23,17 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/graphics-binding
+  location: https://github.com/https://github.com/InThisStyle10s6p/haskell-graphics-binding
 
 library
   hs-source-dirs:
       lib
   build-depends:
       GLFW-b
-    , ObjectName
-    , StateVar
     , base >=4.7 && <5
     , bytestring
     , classy-prelude
-    , foreign-resource
+    , foreign-resource-hs
     , gl
     , lens
     , linear
@@ -45,6 +43,7 @@ library
   other-modules:
       Graphics.Binding.GLFW.Window
       Graphics.Binding.OpenGL.BufferObject
+      Graphics.Binding.OpenGL.PrimitiveUniform
       Graphics.Binding.OpenGL.Program
       Graphics.Binding.OpenGL.Rendering
       Graphics.Binding.OpenGL.Shader
@@ -55,5 +54,5 @@ library
       Graphics.Binding.OpenGL.Utils
       Graphics.Binding.OpenGL.VertexArray
       Graphics.Binding.OpenGL.Window
-      Paths_graphics_binding
+      Paths_haskell_graphics_binding
   default-language: Haskell2010

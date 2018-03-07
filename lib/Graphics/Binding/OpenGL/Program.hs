@@ -1,12 +1,23 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Graphics.Binding.OpenGL.Program where
 
 import Graphics.GL.Core45
-import Data.StateVar
+import Graphics.GL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.Binding.OpenGL.Types
+import Graphics.Binding.OpenGL.Shader
 import Data.ByteString
+import Foreign.Resource
+
+newtype Program = Program { getProgramGLuint :: GLuint } deriving (Eq, Ord, Show)
+
+instance ForeignName Program () where
+  genName_ _ = Program <$> glCreateProgram
+  isName_ (Program n) = unmarshalGLboolean <$> glIsProgram n
+  deleteName_ (Program n) = glDeleteProgram n
 
 data CurrentProgram = CurrentProgram
   deriving (Eq, Ord, Show)
@@ -21,7 +32,7 @@ data ProgramShaderComponent = ProgramShaderComponent
   deriving (Eq, Ord, Show)
 
 instance ForeignRead Program ProgramDeleteStatus Bool where
-  readR_ (Program n) _ = unMarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_DELETE_STATUS)
+  readR_ (Program n) _ = unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_DELETE_STATUS)
 
 instance ForeignRead Program ProgramValidateStatus (Maybe ByteString) where
   readR_ (Program n) _ = do
@@ -32,7 +43,7 @@ instance ForeignRead Program ProgramValidateStatus (Maybe ByteString) where
       else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
 
 instance Shader t => ForeignWrite Program () t where
-  writeR_ (Program n) _ t = glAttachShader n (marshalShaderObject t)
+  writeR_ prog@(Program n) _ t = glAttachShader n (marshalShaderObject t) >> return prog
 
 linkProgram :: MonadIO m => Program -> m (Maybe ByteString)
 linkProgram (Program n) = liftIO $ do
