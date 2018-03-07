@@ -42,8 +42,10 @@ instance ForeignRead Program ProgramValidateStatus (Maybe ByteString) where
       then return Nothing
       else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
 
-instance Shader t => ForeignWrite Program () t where
-  writeR_ prog@(Program n) _ t = glAttachShader n (marshalShaderObject t) >> return prog
+newtype ShaderAttach t = ShaderAttach { _unShaderAttach :: t }
+
+instance Shader t => ForeignWrite Program () (ShaderAttach t) where
+  writeR_ prog@(Program n) _ (ShaderAttach t) = glAttachShader n (marshalShaderObject t) >> return prog
 
 linkProgram :: MonadIO m => Program -> m (Maybe ByteString)
 linkProgram (Program n) = liftIO $ do
