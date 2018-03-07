@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 41500e60aa2514030d531666532486c1f42a613e0dc9c714a906489a87560c9b
+-- hash: 352eb1e7527a5c643f3c51a1bbf72865a6c18376d6f5663f9d38852c3e78c267
 
 name:           haskell-graphics-binding
 version:        0.1.0.0
@@ -33,7 +33,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , classy-prelude
-    , foreign-resource-hs
+    , foreign-resource-hs ==0.1.0.0
     , gl
     , lens
     , linear
