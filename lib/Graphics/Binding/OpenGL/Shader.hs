@@ -103,7 +103,6 @@ instance Shader t => ForeignRead (ShaderSource t) () ByteString where
 
 instance Shader t => ForeignWrite (ShaderSource t) () ByteString where
   writeR_ (ShaderSource shader) _ src = withByteString src
->>>>>>> 1573bf8
     ( \srcPtr srcLength -> with srcPtr $
       \srcPtrBuf -> with srcLength $
       \srcLengthBuf -> glShaderSource (marshalShaderObject shader) 1 srcPtrBuf srcLengthBuf
