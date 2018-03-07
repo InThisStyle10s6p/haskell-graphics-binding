@@ -28,7 +28,7 @@ dependencies:
 - vector
 - linear
 - bytestring
-- foreign-resource-hs
+- foreign-resource-hs-0.1.0.0
 
 library:
   source-dirs: lib
