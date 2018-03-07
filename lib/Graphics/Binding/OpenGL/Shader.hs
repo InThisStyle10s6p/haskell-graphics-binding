@@ -82,24 +82,30 @@ compileShader t = do
   where
     n = marshalShaderObject t
 
-instance Shader t => ForeignRead t GLDeleteStatus Bool where
-  readR_ shader _ = unmarshalGLboolean <$> foreignPoke (glGetShaderiv (marshalShaderObject shader) GL_DELETE_STATUS)
+newtype ShaderDeleteStatus t = ShaderDeleteStatus t
 
-instance Shader t => ForeignRead t GLInfoLog ByteString where
-  readR_ shader _ = withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
+instance Shader t => ForeignRead (ShaderDeleteStatus t) () Bool where
+  readR_ (ShaderDeleteStatus shader) _ = unmarshalGLboolean <$> foreignPoke (glGetShaderiv (marshalShaderObject shader) GL_DELETE_STATUS)
+
+newtype ShaderInfoLog t = ShaderInfoLog t
+
+instance Shader t => ForeignRead (ShaderInfoLog t) () ByteString where
+  readR_ (ShaderInfoLog shader) _ = withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
     where
       n = marshalShaderObject shader
 
-instance Shader t => ForeignRead t () ByteString where
-  readR_ shader _ = withForeignBufferBS (glGetShaderiv n GL_SHADER_SOURCE_LENGTH) $ glGetShaderSource n
+newtype ShaderSource t = ShaderSource { _unShaderSource :: t }
+
+instance Shader t => ForeignRead (ShaderSource t) () ByteString where
+  readR_ (ShaderSource shader) _ = withForeignBufferBS (glGetShaderiv n GL_SHADER_SOURCE_LENGTH) $ glGetShaderSource n
     where
       n = marshalShaderObject shader
 
-instance Shader t => ForeignWrite t () ByteString where
-  writeR_ shader _ src = withByteString src
+instance Shader t => ForeignWrite (ShaderSource t) () ByteString where
+  writeR_ (ShaderSource shader) _ src = withByteString src
     ( \srcPtr srcLength -> with srcPtr $
       \srcPtrBuf -> with srcLength $
       \srcLengthBuf -> glShaderSource (marshalShaderObject shader) 1 srcPtrBuf srcLengthBuf
-    ) >> return shader
+    ) >> return (ShaderSource shader)
 
-instance Shader t => ForeignUpdate t () ByteString where
+instance Shader t => ForeignUpdate (ShaderSource t) () ByteString where
