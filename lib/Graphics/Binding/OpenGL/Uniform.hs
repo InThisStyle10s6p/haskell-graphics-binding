@@ -19,7 +19,10 @@ newtype UniformBufferBindingLocation = UniformBufferBindingLocation
 
 class DefaultBlockUniform a where
   type DefaultBlockUniformContents a
-  defaultBlockUniform :: MonadIO m => Program -> a -> DefaultBlockUniformContents a -> m ()
+  defaultBlockUniform_ :: MonadIO m => Program -> a -> DefaultBlockUniformContents a -> m ()
+
+defaultBlockUniform :: (MonadIO m, ProgramLike b, DefaultBlockUniform a) => b -> a -> DefaultBlockUniformContents a -> m ()
+defaultBlockUniform b = defaultBlockUniform_ (toProgram b)
 
 uniformBlockBinding :: MonadIO m => Program -> UniformBlockLocation -> UniformBufferBindingLocation -> m ()
 uniformBlockBinding (Program a) (UniformBlockLocation b) (UniformBufferBindingLocation c) = glUniformBlockBinding a b c
