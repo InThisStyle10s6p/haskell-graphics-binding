@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,6 +13,10 @@ import Graphics.Binding.OpenGL.Utils
 import Graphics.Binding.OpenGL.Shader
 import Graphics.Binding.OpenGL.BufferObject
 import Graphics.Binding.OpenGL.VertexArray
+import Graphics.Binding.OpenGL.Types
+import Foreign.Resource
+import Foreign.Marshal.Alloc
+import Data.Typeable
 
 newtype UniformBufferBindingLocation = UniformBufferBindingLocation
   { _getUniformBufferBindingLocationGLuint :: GLuint

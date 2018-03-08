@@ -139,6 +139,7 @@ instance ShaderType t => Show (ShaderStage t) where
 
 instance ShaderType t => ForeignName (ShaderStage t) ByteString where
   genName_ src = useAsCString src $
+    \srcPtr -> with srcPtr $
     fmap (ShaderStage . Program) . glCreateShaderProgramv n 1 . castPtr
     where
       n = marshalShaderType (Proxy :: Proxy t)

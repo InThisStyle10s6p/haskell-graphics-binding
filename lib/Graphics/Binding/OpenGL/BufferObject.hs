@@ -162,6 +162,7 @@ instance GLWritable a => ForeignWrite FullBufferWrite (DynamicBuffer a) a where
     bufferSubData n (fromIntegral size) 0 (castPtr ptr) >> return b
     where
       size = gSize (Proxy :: Proxy a)
+
 ------
 
 initBufferName :: MonadIO m

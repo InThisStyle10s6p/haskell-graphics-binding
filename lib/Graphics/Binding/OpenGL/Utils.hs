@@ -16,6 +16,7 @@ module Graphics.Binding.OpenGL.Utils
   , BitOr(..)
   , marshalGLboolean
   , unmarshalGLboolean
+  , fromIndirection
   ) where
 
 import Foreign as X
@@ -78,6 +79,9 @@ withByteString :: ByteString -> (Ptr GLchar -> GLsizei -> IO b) -> IO b
 withByteString bs act =
    BU.unsafeUseAsCStringLen bs $ \(ptr, size) ->
       act (castPtr ptr) (fromIntegral size)
+
+fromIndirection :: (Ptr (Ptr a) -> IO b) -> (Ptr a -> IO b)
+fromIndirection = flip with
 
 maybeNullPtr :: b -> (Ptr a -> b) -> Ptr a -> b
 maybeNullPtr n f ptr | ptr == nullPtr = n
