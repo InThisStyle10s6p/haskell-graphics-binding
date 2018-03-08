@@ -59,7 +59,7 @@ instance ForeignRead GLCompilationStatus Program (Maybe ByteString) where
     status <- unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_COMPILE_STATUS)
     if status
       then return Nothing
-      else Just <$> withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
+      else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
 
 linkProgram :: MonadIO m => Program -> m (Maybe ByteString)
 linkProgram (Program n) = liftIO $ do
@@ -147,6 +147,9 @@ instance ShaderType t => ForeignName (ShaderStage t) ByteString where
   deleteName_ = deleteName_ . toProgram
 
 instance ShaderType t => ForeignRead GLCompilationStatus (ShaderStage t) (Maybe ByteString) where
+  readR_ t = readR_ t . toProgram
+
+instance ShaderType t => ForeignRead GLValidateStatus (ShaderStage t) (Maybe ByteString) where
   readR_ t = readR_ t . toProgram
 
 instance ShaderType t => ForeignRead GLDeleteStatus (ShaderStage t) Bool where
