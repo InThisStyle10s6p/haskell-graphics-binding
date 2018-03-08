@@ -165,7 +165,10 @@ instance ForeignName ShaderPipeline () where
   isName_   = genericGLIsName _getShaderPipelineGLuint glIsProgramPipeline
   deleteNames_ = genericGLDeleteNames _getShaderPipelineGLuint glDeleteProgramPipelines
 
-instance ShaderType t => ForeignWrite () ShaderPipeline (ShaderStage t) where
+data ShaderStageSet (t :: ShaderStageType) = ShaderStageSet
+  deriving (Eq, Ord, Show)
+
+instance ShaderType t => ForeignWrite (ShaderStageSet t) ShaderPipeline (ShaderStage t) where
   writeR_ _ s@(ShaderPipeline n) t@(ShaderStage (Program m)) = glUseProgramStages n (marshalShaderStage t) m >> return s
 
 data ActivePipeline = ActivePipeline
@@ -194,11 +197,11 @@ data ShaderPipelineSpec = ShaderPipelineSpec
 
 instance ForeignWrite () ShaderPipeline ShaderPipelineSpec where
   writeR_ _ t ShaderPipelineSpec {..} = do
-    t $= _shaderPipelineSpecVertexShader
-    traverse_ (writeR' t) _shaderPipelineSpecTessControlShader
-    traverse_ (writeR' t) _shaderPipelineSpecTessEvalShader
-    traverse_ (writeR' t) _shaderPipelineSpecGeometryShader
-    t $= _shaderPipelineSpecFragmentShader
+    t ~& ShaderStageSet .$= _shaderPipelineSpecVertexShader
+    traverse_ (writeR ShaderStageSet t) _shaderPipelineSpecTessControlShader
+    traverse_ (writeR ShaderStageSet t) _shaderPipelineSpecTessEvalShader
+    traverse_ (writeR ShaderStageSet t) _shaderPipelineSpecGeometryShader
+    t ~& ShaderStageSet .$= _shaderPipelineSpecFragmentShader
     return t
 
 

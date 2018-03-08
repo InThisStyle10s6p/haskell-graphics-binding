@@ -41,6 +41,8 @@ module Graphics.Binding.GLFW.Window
   , windowConfigTitle
   , windowConfigMonitorFullscreen
   , windowConfigWindowContextShare
+  , WindowCloseCallbackFunc
+  , WindowCursorInputMode
   ) where
 
 import Graphics.UI.GLFW as X
@@ -85,14 +87,22 @@ instance ForeignWrite WindowShouldClose Window Bool where
 
 instance ForeignUpdate WindowShouldClose Window Bool where
 
-instance ForeignWrite () Window (Maybe WindowCloseCallback) where
+data WindowCloseCallbackFunc = WindowCloseCallbackFunc
+  deriving (Eq, Ord, Show)
+
+instance ForeignWrite WindowCloseCallbackFunc Window (Maybe WindowCloseCallback) where
   writeR_ _ = mkWritePassthrough G.setWindowCloseCallback
 
-instance ForeignRead () Window CursorInputMode where
+data WindowCursorInputMode = WindowCursorInputMode
+  deriving (Eq, Ord, Show)
+
+instance ForeignRead WindowCursorInputMode Window CursorInputMode where
   readR_ _ = G.getCursorInputMode
 
-instance ForeignWrite () Window CursorInputMode where
+instance ForeignWrite WindowCursorInputMode Window CursorInputMode where
   writeR_ _ = mkWritePassthrough G.setCursorInputMode
+
+instance ForeignUpdate WindowCursorInputMode Window CursorInputMode where
 
 data GraphicsContextConfig = GraphicsContextConfig
   { _graphicsContextClientAPI           :: G.ClientAPI

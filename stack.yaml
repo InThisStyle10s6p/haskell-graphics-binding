@@ -15,4 +15,4 @@ resolver: lts-10.7
 
 extra-deps:
   - git: https://github.com/InThisStyle10s6p/foreign-resource-hs
-    commit: b4594708f4aaca80cf888558e47399b7738a8a98
+    commit: 5110a45aace895d090f6a5ea883b819ab9a468ca
