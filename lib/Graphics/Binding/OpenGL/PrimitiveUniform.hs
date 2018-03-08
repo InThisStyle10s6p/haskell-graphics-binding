@@ -7,7 +7,7 @@ module Graphics.Binding.OpenGL.PrimitiveUniform where
 import Graphics.GL.Types
 import Graphics.GL.Core45
 import Control.Monad.IO.Class
-import Graphics.Binding.OpenGL.Program
+import Graphics.Binding.OpenGL.Shader
 import Graphics.Binding.OpenGL.Utils
 import Linear
 import qualified Data.Vector.Storable as VS

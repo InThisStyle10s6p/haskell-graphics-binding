@@ -9,7 +9,7 @@ module Graphics.Binding.OpenGL.Uniform where
 import Graphics.GL.Core45
 import Graphics.GL.Types
 import Graphics.Binding.OpenGL.Utils
-import Graphics.Binding.OpenGL.Program
+import Graphics.Binding.OpenGL.Shader
 import Graphics.Binding.OpenGL.BufferObject
 import Graphics.Binding.OpenGL.VertexArray
 

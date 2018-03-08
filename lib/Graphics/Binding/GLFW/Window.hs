@@ -77,22 +77,22 @@ instance ForeignRead Window () GLContextVersion where
 data WindowShouldClose = WindowShouldClose
   deriving (Eq, Ord, Show)
 
-instance ForeignRead Window WindowShouldClose Bool where
-  readR_ win _ = G.windowShouldClose win
+instance ForeignRead WindowShouldClose Window Bool where
+  readR_ _ = G.windowShouldClose
 
-instance ForeignWrite Window WindowShouldClose Bool where
-  writeR_ win _ = mkWritePassthrough win G.setWindowShouldClose
+instance ForeignWrite WindowShouldClose Window Bool where
+  writeR_ _ = mkWritePassthrough G.setWindowShouldClose
 
-instance ForeignUpdate Window WindowShouldClose Bool where
+instance ForeignUpdate WindowShouldClose Window Bool where
 
-instance ForeignWrite Window () (Maybe WindowCloseCallback) where
-  writeR_ win _ = mkWritePassthrough win G.setWindowCloseCallback
+instance ForeignWrite () Window (Maybe WindowCloseCallback) where
+  writeR_ _ = mkWritePassthrough G.setWindowCloseCallback
 
-instance ForeignRead Window () CursorInputMode where
-  readR_ win _ = G.getCursorInputMode win
+instance ForeignRead () Window CursorInputMode where
+  readR_ _ = G.getCursorInputMode
 
-instance ForeignWrite Window () CursorInputMode where
-  writeR_ win _ s = G.setCursorInputMode win s >> return win
+instance ForeignWrite () Window CursorInputMode where
+  writeR_ _ = mkWritePassthrough G.setCursorInputMode
 
 data GraphicsContextConfig = GraphicsContextConfig
   { _graphicsContextClientAPI           :: G.ClientAPI
@@ -202,7 +202,7 @@ data CurrentContext = CurrentContext deriving (Eq, Ord, Show)
 instance ForeignRead CurrentContext () (Maybe Window) where
   readR_ _ _ = G.getCurrentContext
 
-instance ForeignWrite CurrentContext () (Maybe Window) where
+instance ForeignWrite () CurrentContext (Maybe Window) where
   writeR_ _ _ mwin = G.makeContextCurrent mwin >> return CurrentContext
 
 mconcat <$> mapM makeLenses

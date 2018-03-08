@@ -25,24 +25,30 @@ instance ForeignName VertexArrayObject () where
 
   deleteNames_ ns = liftIO . withArrayLen ns $ \len ptr -> glDeleteVertexArrays (fromIntegral len) (castPtr ptr)
 
-newtype AttribLocation = AttribLocation { getAttribLocationGLuint :: GLuint } deriving (Eq, Ord, Show, Num)
+newtype AttribLocation = AttribLocation
+  { getAttribLocationGLuint :: GLuint
+  } deriving (Eq, Ord, Show, Num)
 
-newtype UniformBlockLocation = UniformBlockLocation { _getUniformBlockLocation :: GLuint } deriving (Eq, Ord, Show, Num)
+newtype UniformBlockLocation = UniformBlockLocation
+  { _getUniformBlockLocation :: GLuint
+  } deriving (Eq, Ord, Show, Num)
 
-newtype TextureSamplerLocation = TextureSamplerLocation { _getTextureSamplerLocation :: GLuint } deriving (Eq, Ord, Show, Num)
+newtype TextureSamplerLocation = TextureSamplerLocation
+  { _getTextureSamplerLocation :: GLuint
+  } deriving (Eq, Ord, Show, Num)
 
 
 data ActiveVertexArrayObject = ActiveVertexArrayObject
   deriving (Eq, Ord, Show)
 
-instance ForeignRead ActiveVertexArrayObject () (Maybe VertexArrayObject) where
+instance ForeignRead () ActiveVertexArrayObject (Maybe VertexArrayObject) where
   readR_ _ _ = do
     n <- foreignPoke (glGetInteger64v GL_ARRAY_BUFFER_BINDING)
     if n == 0
       then return Nothing
       else return . Just . VertexArrayObject . fromIntegral $ n
 
-instance ForeignWrite ActiveVertexArrayObject () (Maybe VertexArrayObject) where
+instance ForeignWrite () ActiveVertexArrayObject (Maybe VertexArrayObject) where
   writeR_ _ _ = \case
     Nothing -> return ActiveVertexArrayObject
     Just (VertexArrayObject n) -> glBindVertexArray n >> return ActiveVertexArrayObject

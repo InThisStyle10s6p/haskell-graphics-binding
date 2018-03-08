@@ -9,6 +9,13 @@ module Graphics.Binding.OpenGL.Utils
   , unsafeWithVecLen
   , fillFrozenM44CFloat
   , unsafeWithFrozenMatrix
+  , genericGLCreate
+  , genericGLIsName
+  , genericGLDeleteNames
+  , BitAnd(..)
+  , BitOr(..)
+  , marshalGLboolean
+  , unmarshalGLboolean
   ) where
 
 import Foreign as X
@@ -30,7 +37,29 @@ import qualified Data.Vector.Storable.Mutable as MS
 import           Foreign                      hiding (void)
 import           Foreign.C.Types
 import           Graphics.GL.Types
+import           Graphics.GL.Core45
 import           Linear                              (M44)
+
+-- * Bit helpers
+
+newtype BitAnd a = BitAnd { getBitAnd :: a } deriving (Eq, Ord, Show)
+newtype BitOr a = BitOr { getBitOr :: a } deriving (Eq, Ord, Show)
+
+instance (Bits a) => Monoid (BitAnd a) where
+  mempty = BitAnd zeroBits
+  mappend x y = BitAnd $ getBitAnd x .&. getBitAnd y
+
+instance (Bits a) => Monoid (BitOr a) where
+  mempty = BitOr zeroBits
+  mappend x y = BitOr $ getBitOr x .|. getBitOr y
+
+-- * Boolean marshaling
+marshalGLboolean :: Bool -> GLboolean
+marshalGLboolean x = if x then GL_TRUE else GL_FALSE
+
+unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
+unmarshalGLboolean = (/= GL_FALSE)
+
 
 withForeignBufferBS :: (Storable n, Storable p, Integral n, Integral p, MonadIO m)
                     => (Ptr n -> IO ())
@@ -77,3 +106,13 @@ unsafeWithFrozenMatrix (FrozenM44 mtr) endo act = do
   MS.unsafeModify mvec endo 1
   _ <- MS.unsafeWith mvec (act . \ptr -> castPtr ptr :: Ptr a)
   return ()
+
+genericGLCreate :: (GLuint -> b) -> (GLsizei -> Ptr GLuint -> IO ()) -> Int -> () -> IO [b]
+genericGLCreate f gf n _ = fmap (fmap f) . liftIO . allocaArray n $
+    \ptr -> gf (fromIntegral n) ptr >> peekArray n ptr
+
+genericGLIsName :: (b -> GLuint) -> (GLuint -> IO GLboolean) -> b -> IO Bool
+genericGLIsName f g b = unmarshalGLboolean <$> g (f b)
+
+genericGLDeleteNames :: (b -> GLuint) -> (GLsizei -> Ptr GLuint -> IO ()) -> [b] -> IO ()
+genericGLDeleteNames f g ns = liftIO . withArrayLen (f <$> ns) $ \len ptr -> g (fromIntegral len) ptr

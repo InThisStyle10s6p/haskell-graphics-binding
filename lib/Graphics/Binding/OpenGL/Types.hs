@@ -17,26 +17,6 @@ import Graphics.Binding.OpenGL.Utils
 import Data.Bits
 import Data.Typeable
 
--- * Bit helpers
-
-newtype BitAnd a = BitAnd { getBitAnd :: a } deriving (Eq, Ord, Show)
-newtype BitOr a = BitOr { getBitOr :: a } deriving (Eq, Ord, Show)
-
-instance (Bits a) => Monoid (BitAnd a) where
-  mempty = BitAnd zeroBits
-  mappend x y = BitAnd $ getBitAnd x .&. getBitAnd y
-
-instance (Bits a) => Monoid (BitOr a) where
-  mempty = BitOr zeroBits
-  mappend x y = BitOr $ getBitOr x .|. getBitOr y
-
--- * Boolean marshaling
-marshalGLboolean :: Bool -> GLboolean
-marshalGLboolean x = if x then GL_TRUE else GL_FALSE
-
-unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
-unmarshalGLboolean = (/= GL_FALSE)
-
 -- * GL Storable types
 class GLSized a where
   gSize_ :: Proxy a -> Int
@@ -229,3 +209,7 @@ marshalSamplerType = \case
 data GLDeleteStatus = GLDeleteStatus deriving (Eq, Ord, Show)
 
 data GLInfoLog = GLInfoLog deriving (Eq, Ord, Show)
+
+data GLValidateStatus = GLValidateStatus deriving (Eq, Ord, Show)
+
+data GLCompilationStatus = GLCompilationStatus deriving (Eq, Ord, Show)

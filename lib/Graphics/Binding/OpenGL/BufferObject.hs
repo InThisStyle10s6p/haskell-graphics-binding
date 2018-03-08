@@ -24,8 +24,7 @@ newtype BufferName = BufferName
   } deriving (Eq, Ord, Show, Storable)
 
 instance ForeignName BufferName () where
-  genNames_ n _ = fmap (fmap BufferName) . liftIO . allocaArray n $
-    \ptr -> glCreateBuffers (fromIntegral n) ptr >> peekArray n ptr
+  genNames_ = genericGLCreate BufferName glCreateBuffers
 
   isName_ (BufferName n) = unmarshalGLboolean <$> glIsBuffer n
 

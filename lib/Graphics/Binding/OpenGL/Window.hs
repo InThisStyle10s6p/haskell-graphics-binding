@@ -9,11 +9,9 @@ import Data.ByteString
 import Foreign.Ptr
 import Graphics.GL.Types
 import Graphics.GL.Core45
-import Graphics.Binding.OpenGL.Types
 import Linear
 import Text.Printf
 import Foreign.Resource
-import Control.Lens
 
 -- * Window
 data Face = Front | Back | FrontBack deriving (Eq, Ord, Show)
@@ -98,7 +96,7 @@ unmarshalDebugSeverity = \case
 data FaceCullMode = FaceCullMode
   deriving (Eq, Ord, Show)
 
-instance ForeignWrite FaceCullMode () (Maybe Face) where
+instance ForeignWrite () FaceCullMode (Maybe Face) where
   writeR_ _ _ = \case
     Nothing        -> glDisable GL_CULL_FACE >> return FaceCullMode
     Just Front     -> glEnable GL_CULL_FACE >> glCullFace GL_FRONT >> return FaceCullMode
@@ -111,13 +109,13 @@ color4 r g b = Color4 . V4 r g b
 data ClearColor = ClearColor
   deriving (Eq, Ord, Show)
 
-instance ForeignWrite ClearColor () Color4 where
+instance ForeignWrite () ClearColor Color4 where
   writeR_ _ _ (Color4 (V4 r g b a)) = glClearColor r g b a >> return ClearColor
 
 data DepthTest = DepthTest
   deriving (Eq, Ord, Show)
 
-instance ForeignWrite DepthTest () (Maybe DepthFunc) where
+instance ForeignWrite () DepthTest (Maybe DepthFunc) where
   writeR_ _ _ = \case
     Nothing -> glDisable GL_DEPTH_TEST >> return DepthTest
     Just DepthNever     -> glEnable GL_DEPTH_TEST >> glDepthFunc GL_NEVER >> return DepthTest
@@ -132,7 +130,7 @@ instance ForeignWrite DepthTest () (Maybe DepthFunc) where
 data DebugMessageCallback = DebugMessageCallback
   deriving (Eq, Ord, Show)
 
-instance ForeignWrite DebugMessageCallback () (Maybe DebugCallbackFun) where
+instance ForeignWrite () DebugMessageCallback (Maybe DebugCallbackFun) where
   writeR_ _ _ = \case
     Nothing -> glDebugMessageCallback nullFunPtr nullPtr >> return DebugMessageCallback
     Just func -> do

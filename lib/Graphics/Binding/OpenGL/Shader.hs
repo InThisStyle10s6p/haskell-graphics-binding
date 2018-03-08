@@ -1,111 +1,206 @@
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE KindSignatures #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
+
 module Graphics.Binding.OpenGL.Shader where
 
 import Data.ByteString
+import Data.ByteString.Char8 (useAsCString)
 import Graphics.Binding.OpenGL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.GL.Core45
 import Foreign.Resource
 import Graphics.GL.Types
+import Data.Typeable
+import Data.Foldable
+import Data.Monoid
 
-newtype VertexShader = VertexShader { _vertexShaderGLuint :: GLuint } deriving (Eq, Ord, Show, Storable)
+-- * Bare program related things.
+newtype Program = Program
+  { getProgramGLuint :: GLuint
+  } deriving (Eq, Ord, Storable)
 
-instance ForeignName VertexShader () where
-  genName_ _ = VertexShader <$> glCreateShader GL_VERTEX_SHADER
-  isName_ (VertexShader n) = unmarshalGLboolean <$> glIsShader n
-  deleteName_ (VertexShader n) = glDeleteShader n
+instance Show Program where
+  show _ = "Program"
 
-newtype FragmentShader = FragmentShader { _fragmentShaderGLuint :: GLuint } deriving (Eq, Ord, Show, Storable)
+instance ForeignName Program () where
+  genName_ _ = Program <$> glCreateProgram
+  isName_ (Program n) = unmarshalGLboolean <$> glIsProgram n
+  deleteName_ (Program n) = glDeleteProgram n
 
-instance ForeignName FragmentShader () where
-  genName_ _ = FragmentShader <$> glCreateShader GL_FRAGMENT_SHADER
-  isName_ (FragmentShader n) = unmarshalGLboolean <$> glIsShader n
-  deleteName_ (FragmentShader n) = glDeleteShader n
+data CurrentProgram = CurrentProgram
+  deriving (Eq, Ord, Show)
 
-newtype TessControlShader = TessControlShader { _tessControlShaderGLuint :: GLuint } deriving (Eq, Ord, Show, Storable)
+data ProgramShaderComponent = ProgramShaderComponent
+  deriving (Eq, Ord, Show)
 
-instance ForeignName TessControlShader () where
-  genName_ _ = TessControlShader <$> glCreateShader GL_TESS_CONTROL_SHADER
-  isName_ (TessControlShader n) = unmarshalGLboolean <$> glIsShader n
-  deleteName_ (TessControlShader n) = glDeleteShader n
+instance ForeignRead GLDeleteStatus Program Bool where
+  readR_ _ (Program n) = unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_DELETE_STATUS)
 
-newtype TessEvalShader = TessEvalShader { _tessEvalShaderGLuint :: GLuint } deriving (Eq, Ord, Show, Storable)
+instance ForeignRead GLValidateStatus Program (Maybe ByteString) where
+  readR_ _ (Program n) = do
+    glValidateProgram n
+    status <- unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_VALIDATE_STATUS)
+    if status
+      then return Nothing
+      else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
 
-instance ForeignName TessEvalShader () where
-  genName_ _ = TessEvalShader <$> glCreateShader GL_TESS_EVALUATION_SHADER
-  isName_ (TessEvalShader n) = unmarshalGLboolean <$> glIsShader n
-  deleteName_ (TessEvalShader n) = glDeleteShader n
-
-newtype ComputeShader = ComputeShader { _computeShaderGLuint :: GLuint } deriving (Eq, Ord, Show, Storable)
-
-instance ForeignName ComputeShader () where
-  genName_ _ = ComputeShader <$> glCreateShader GL_COMPUTE_SHADER
-  isName_ (ComputeShader n) = unmarshalGLboolean <$> glIsShader n
-  deleteName_ (ComputeShader n) = glDeleteShader n
-
-class ForeignName t () => Shader t where
-  marshalShaderType :: t -> GLuint
-  marshalShaderObject :: t -> GLuint
-
-instance Shader VertexShader where
-  marshalShaderType _ = GL_VERTEX_SHADER
-  marshalShaderObject = _vertexShaderGLuint
-
-instance Shader TessEvalShader where
-  marshalShaderType _ = GL_TESS_EVALUATION_SHADER
-  marshalShaderObject = _tessEvalShaderGLuint
-
-instance Shader TessControlShader where
-  marshalShaderType _ = GL_TESS_CONTROL_SHADER
-  marshalShaderObject = _tessControlShaderGLuint
-
-instance Shader FragmentShader where
-  marshalShaderType _ = GL_FRAGMENT_SHADER
-  marshalShaderObject = _fragmentShaderGLuint
-
-instance Shader ComputeShader where
-  marshalShaderType _ = GL_COMPUTE_SHADER
-  marshalShaderObject = _computeShaderGLuint
+instance ForeignRead GLCompilationStatus Program (Maybe ByteString) where
+  readR_ _ (Program n) = do
+    status <- unmarshalGLboolean <$> foreignPoke (glGetShaderiv n GL_COMPILE_STATUS)
+    if status
+      then return Nothing
+      else Just <$> withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
 
 
-compileShader :: (Shader t, MonadIO m) => t -> m (Maybe ByteString)
-compileShader t = do
-  glCompileShader n
-  status <- unmarshalGLboolean <$> foreignPoke (glGetShaderiv n GL_COMPILE_STATUS)
+linkProgram :: MonadIO m => Program -> m (Maybe ByteString)
+linkProgram (Program n) = liftIO $ do
+  glLinkProgram n
+  status <- unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_LINK_STATUS)
   if status
     then return Nothing
-    else Just <$> withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
-  where
-    n = marshalShaderObject t
+    else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
 
-newtype ShaderDeleteStatus t = ShaderDeleteStatus t
+instance ForeignWrite () CurrentProgram (Maybe Program) where
+  writeR_ _ _ = \case
+    Nothing          -> glUseProgram 0 >> return CurrentProgram
+    Just (Program n) -> glUseProgram n >> return CurrentProgram
 
-instance Shader t => ForeignRead (ShaderDeleteStatus t) () Bool where
-  readR_ (ShaderDeleteStatus shader) _ = unmarshalGLboolean <$> foreignPoke (glGetShaderiv (marshalShaderObject shader) GL_DELETE_STATUS)
+instance ForeignRead () CurrentProgram (Maybe Program) where
+  readR_ _ _ = do
+    n <- foreignPoke (glGetInteger64v GL_CURRENT_PROGRAM)
+    if n == 0
+      then return Nothing
+      else return . Just . Program . fromIntegral $ n
 
-newtype ShaderInfoLog t = ShaderInfoLog t
+instance ForeignUpdate () CurrentProgram (Maybe Program) where
 
-instance Shader t => ForeignRead (ShaderInfoLog t) () ByteString where
-  readR_ (ShaderInfoLog shader) _ = withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
+class ProgramLike t where
+  toProgram :: t -> Program
+
+-- * Shader stages
+
+data ShaderStageType
+  = VertexShader
+  | TessControlShader
+  | TessEvalShader
+  | GeometryShader
+  | FragmentShader
+  | ComputeShader
+  deriving (Eq, Ord, Show, Typeable)
+
+newtype ShaderStage (a :: ShaderStageType) = ShaderStage
+  { _shaderStageName :: Program
+  } deriving (Eq, Ord, Storable)
+
+class ShaderType (a :: ShaderStageType) where
+  marshalShaderType :: c a -> GLenum
+  marshalShaderStage :: c a -> GLbitfield
+  showShaderType :: c a -> String
+
+instance ShaderType 'VertexShader where
+  marshalShaderType  _ = GL_VERTEX_SHADER
+  marshalShaderStage _ = GL_VERTEX_SHADER_BIT
+  showShaderType     _ = show VertexShader
+instance ShaderType 'TessControlShader where
+  marshalShaderType  _ = GL_TESS_CONTROL_SHADER
+  marshalShaderStage _ = GL_TESS_CONTROL_SHADER_BIT
+  showShaderType     _ = show TessControlShader
+instance ShaderType 'TessEvalShader where
+  marshalShaderType  _ = GL_TESS_EVALUATION_SHADER
+  marshalShaderStage _ = GL_TESS_EVALUATION_SHADER_BIT
+  showShaderType     _ = show TessEvalShader
+instance ShaderType 'GeometryShader where
+  marshalShaderType  _ = GL_GEOMETRY_SHADER
+  marshalShaderStage _ = GL_GEOMETRY_SHADER_BIT
+  showShaderType     _ = show GeometryShader
+instance ShaderType 'FragmentShader where
+  marshalShaderType  _ = GL_FRAGMENT_SHADER
+  marshalShaderStage _ = GL_FRAGMENT_SHADER_BIT
+  showShaderType     _ = show FragmentShader
+instance ShaderType 'ComputeShader where
+  marshalShaderType  _ = GL_COMPUTE_SHADER
+  marshalShaderStage _ = GL_COMPUTE_SHADER_BIT
+  showShaderType     _ = show ComputeShader
+
+instance ShaderType t => ProgramLike (ShaderStage t) where
+  toProgram (ShaderStage n) = n
+
+instance ShaderType t => Show (ShaderStage t) where
+  show t = "ShaderStage " <> showShaderType t
+
+instance ShaderType t => ForeignName (ShaderStage t) ByteString where
+  genName_ src = useAsCString src $
+    fmap (ShaderStage . Program) . glCreateShaderProgramv n 1 . castPtr
     where
-      n = marshalShaderObject shader
+      n = marshalShaderType (Proxy :: Proxy t)
+  isName_ = isName_ . toProgram
+  deleteName_ = deleteName_ . toProgram
 
-newtype ShaderSource t = ShaderSource { _unShaderSource :: t }
+instance ShaderType t => ForeignRead GLCompilationStatus (ShaderStage t) (Maybe ByteString) where
+  readR_ t = readR_ t . toProgram
 
-instance Shader t => ForeignRead (ShaderSource t) () ByteString where
-  readR_ (ShaderSource shader) _ = withForeignBufferBS (glGetShaderiv n GL_SHADER_SOURCE_LENGTH) $ glGetShaderSource n
-    where
-      n = marshalShaderObject shader
+instance ShaderType t => ForeignRead GLDeleteStatus (ShaderStage t) Bool where
+  readR_ t = readR_ t . toProgram
 
-instance Shader t => ForeignWrite (ShaderSource t) () ByteString where
-  writeR_ (ShaderSource shader) _ src = withByteString src
-    ( \srcPtr srcLength -> with srcPtr $
-      \srcPtrBuf -> with srcLength $
-      \srcLengthBuf -> glShaderSource (marshalShaderObject shader) 1 srcPtrBuf srcLengthBuf
-    ) >> return (ShaderSource shader)
+newtype ShaderPipeline = ShaderPipeline
+  { _getShaderPipelineGLuint :: GLuint
+  } deriving (Eq, Ord)
 
-instance Shader t => ForeignUpdate (ShaderSource t) () ByteString where
+instance Show ShaderPipeline where
+  show _ = "ShaderPipeline"
+
+-- NB supposedly CreateProgramPipelines works with BindProgramPipeline.
+-- We shall see.
+
+instance ForeignName ShaderPipeline () where
+  genNames_ = genericGLCreate ShaderPipeline glCreateProgramPipelines
+  isName_   = genericGLIsName _getShaderPipelineGLuint glIsProgramPipeline
+  deleteNames_ = genericGLDeleteNames _getShaderPipelineGLuint glDeleteProgramPipelines
+
+instance ShaderType t => ForeignWrite () ShaderPipeline (ShaderStage t) where
+  writeR_ _ s@(ShaderPipeline n) t@(ShaderStage (Program m)) = glUseProgramStages n (marshalShaderStage t) m >> return s
+
+data CurrentPipeline = CurrentPipeline
+  deriving (Eq, Ord, Show)
+
+instance ForeignWrite () CurrentPipeline (Maybe ShaderPipeline) where
+  writeR_ _ _ = \case
+    Nothing -> glBindProgramPipeline 0 >> return CurrentPipeline
+    Just (ShaderPipeline n) -> glBindProgramPipeline n >> return CurrentPipeline
+
+instance ForeignRead GLValidateStatus ShaderPipeline (Maybe ByteString) where
+  readR_ _ (ShaderPipeline n) = do
+    glValidateProgramPipeline n
+    status <- unmarshalGLboolean <$> foreignPoke (glGetProgramPipelineiv n GL_VALIDATE_STATUS)
+    if status
+      then return Nothing
+      else Just <$> withForeignBufferBS (glGetProgramPipelineiv n GL_INFO_LOG_LENGTH) (glGetProgramPipelineInfoLog n)
+
+data ShaderPipelineSpec = ShaderPipelineSpec
+  { _shaderPipelineSpecVertexShader      :: ShaderStage 'VertexShader
+  , _shaderPipelineSpecTessControlShader :: Maybe (ShaderStage 'TessControlShader)
+  , _shaderPipelineSpecTessEvalShader    :: Maybe (ShaderStage 'TessEvalShader)
+  , _shaderPipelineSpecGeometryShader    :: Maybe (ShaderStage 'GeometryShader)
+  , _shaderPipelineSpecFragmentShader    :: ShaderStage 'FragmentShader
+  } deriving (Eq, Ord, Show)
+
+instance ForeignWrite () ShaderPipeline ShaderPipelineSpec where
+  writeR_ _ t@(ShaderPipeline n) ShaderPipelineSpec {..} = do
+    t $= _shaderPipelineSpecVertexShader
+    traverse_ (writeR' t) _shaderPipelineSpecTessControlShader
+    traverse_ (writeR' t) _shaderPipelineSpecTessEvalShader
+    traverse_ (writeR' t) _shaderPipelineSpecGeometryShader
+    t $= _shaderPipelineSpecFragmentShader
+    return t
+
+

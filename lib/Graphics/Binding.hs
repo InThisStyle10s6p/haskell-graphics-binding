@@ -24,8 +24,6 @@ import Graphics.Binding.OpenGL.BufferObject as X
 
 import Graphics.Binding.OpenGL.Shader as X
 
-import Graphics.Binding.OpenGL.Program as X
-
 import Graphics.Binding.OpenGL.Uniform as X
 
 import Graphics.Binding.OpenGL.Texture as X
