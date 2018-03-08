@@ -46,6 +46,13 @@ data ProgramShaderComponent = ProgramShaderComponent
 instance ForeignRead GLDeleteStatus Program Bool where
   readR_ _ (Program n) = unmarshalGLboolean <$> foreignPoke (glGetProgramiv n GL_DELETE_STATUS)
 
+instance ForeignRead GLInfoLog Program (Maybe ByteString) where
+  readR_ _ (Program n) = do
+    loglen <- foreignPoke $ glGetProgramiv n GL_INFO_LOG_LENGTH
+    if loglen == 0
+      then return Nothing
+      else Just <$> withForeignBufferBS (glGetProgramiv n GL_INFO_LOG_LENGTH) (glGetProgramInfoLog n)
+
 instance ForeignRead GLValidateStatus Program (Maybe ByteString) where
   readR_ _ (Program n) = do
     glValidateProgram n
@@ -145,6 +152,9 @@ instance ShaderType t => ForeignName (ShaderStage t) ByteString where
       n = marshalShaderType (Proxy :: Proxy t)
   isName_ = isName_ . toProgram
   deleteName_ = deleteName_ . toProgram
+
+instance ShaderType t => ForeignRead GLInfoLog (ShaderStage t) (Maybe ByteString) where
+  readR_ t = readR_ t . toProgram
 
 instance ShaderType t => ForeignRead GLCompilationStatus (ShaderStage t) (Maybe ByteString) where
   readR_ t = readR_ t . toProgram
