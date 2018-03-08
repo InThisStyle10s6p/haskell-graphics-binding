@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -151,6 +152,14 @@ instance GLWritable a => ForeignName (DynamicBuffer a) () where
   isName_ = isName_ . _getDynamicBufferName
 
   deleteNames_ = deleteNames_ . fmap _getDynamicBufferName
+
+data FullDynamicBuffer = FullDynamicBuffer
+  deriving (Eq, Ord, Show)
+
+instance GLWritable a => ForeignWrite FullDynamicBuffer (DynamicBuffer a) a where
+  writeR_ _ b@(DynamicBuffer n) a = allocaBytes size $ \ptr -> bufferSubData n (fromIntegral size) 0 (castPtr ptr) >> return b
+    where
+      size = gSize (Proxy :: Proxy a)
 ------
 
 initBufferName :: MonadIO m
