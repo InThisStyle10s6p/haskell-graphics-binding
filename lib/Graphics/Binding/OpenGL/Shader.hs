@@ -61,7 +61,6 @@ instance ForeignRead GLCompilationStatus Program (Maybe ByteString) where
       then return Nothing
       else Just <$> withForeignBufferBS (glGetShaderiv n GL_INFO_LOG_LENGTH) (glGetShaderInfoLog n)
 
-
 linkProgram :: MonadIO m => Program -> m (Maybe ByteString)
 linkProgram (Program n) = liftIO $ do
   glLinkProgram n
@@ -161,7 +160,6 @@ instance Show ShaderPipeline where
 
 -- NB supposedly CreateProgramPipelines works with BindProgramPipeline.
 -- We shall see.
-
 instance ForeignName ShaderPipeline () where
   genNames_ = genericGLCreate ShaderPipeline glCreateProgramPipelines
   isName_   = genericGLIsName _getShaderPipelineGLuint glIsProgramPipeline
@@ -170,13 +168,13 @@ instance ForeignName ShaderPipeline () where
 instance ShaderType t => ForeignWrite () ShaderPipeline (ShaderStage t) where
   writeR_ _ s@(ShaderPipeline n) t@(ShaderStage (Program m)) = glUseProgramStages n (marshalShaderStage t) m >> return s
 
-data CurrentPipeline = CurrentPipeline
+data ActivePipeline = ActivePipeline
   deriving (Eq, Ord, Show)
 
-instance ForeignWrite () CurrentPipeline (Maybe ShaderPipeline) where
+instance ForeignWrite () ActivePipeline (Maybe ShaderPipeline) where
   writeR_ _ _ = \case
-    Nothing -> glBindProgramPipeline 0 >> return CurrentPipeline
-    Just (ShaderPipeline n) -> glBindProgramPipeline n >> return CurrentPipeline
+    Nothing -> glBindProgramPipeline 0 >> return ActivePipeline
+    Just (ShaderPipeline n) -> glBindProgramPipeline n >> return ActivePipeline
 
 instance ForeignRead GLValidateStatus ShaderPipeline (Maybe ByteString) where
   readR_ _ (ShaderPipeline n) = do
@@ -195,7 +193,7 @@ data ShaderPipelineSpec = ShaderPipelineSpec
   } deriving (Eq, Ord, Show)
 
 instance ForeignWrite () ShaderPipeline ShaderPipelineSpec where
-  writeR_ _ t@(ShaderPipeline n) ShaderPipelineSpec {..} = do
+  writeR_ _ t ShaderPipelineSpec {..} = do
     t $= _shaderPipelineSpecVertexShader
     traverse_ (writeR' t) _shaderPipelineSpecTessControlShader
     traverse_ (writeR' t) _shaderPipelineSpecTessEvalShader
