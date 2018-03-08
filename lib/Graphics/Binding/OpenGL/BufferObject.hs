@@ -153,11 +153,13 @@ instance GLWritable a => ForeignName (DynamicBuffer a) () where
 
   deleteNames_ = deleteNames_ . fmap _getDynamicBufferName
 
-data FullDynamicBuffer = FullDynamicBuffer
+data FullBufferWrite = FullBufferWrite
   deriving (Eq, Ord, Show)
 
-instance GLWritable a => ForeignWrite FullDynamicBuffer (DynamicBuffer a) a where
-  writeR_ _ b@(DynamicBuffer n) a = allocaBytes size $ \ptr -> bufferSubData n (fromIntegral size) 0 (castPtr ptr) >> return b
+instance GLWritable a => ForeignWrite FullBufferWrite (DynamicBuffer a) a where
+  writeR_ _ b@(DynamicBuffer n) a = allocaBytes size $ \ptr -> do
+    gPoke ptr a
+    bufferSubData n (fromIntegral size) 0 (castPtr ptr) >> return b
     where
       size = gSize (Proxy :: Proxy a)
 ------
