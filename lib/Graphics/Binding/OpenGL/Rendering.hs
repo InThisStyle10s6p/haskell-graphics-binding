@@ -1,13 +1,14 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TemplateHaskell #-}
+
 module Graphics.Binding.OpenGL.Rendering where
 
+import Control.Lens
+import Data.Bits
+import Graphics.Binding.OpenGL.Utils
 import Graphics.GL.Core45
 import Graphics.GL.Types
-import Graphics.Binding.OpenGL.Utils
-import Data.Bits
-import Control.Lens
 
 data ClearBuffer = ClearBuffer
   { _clearBufferColor   :: Bool

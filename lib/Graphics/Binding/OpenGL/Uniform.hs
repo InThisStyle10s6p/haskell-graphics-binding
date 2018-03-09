@@ -1,21 +1,20 @@
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module Graphics.Binding.OpenGL.Uniform where
 
-import Graphics.GL.Core45
-import Graphics.GL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.Binding.OpenGL.Shader
 import Graphics.Binding.OpenGL.BufferObject
+import Graphics.GL.Core45
+import Graphics.GL.Types
 
 newtype UniformBufferBindingLocation = UniformBufferBindingLocation
   { _getUniformBufferBindingLocationGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show UniformBufferBindingLocation where
+  show (UniformBufferBindingLocation n) = "UniformBufferBindingLocation " `mappend` show n
 
 class DefaultBlockUniform a where
   type DefaultBlockUniformContents a

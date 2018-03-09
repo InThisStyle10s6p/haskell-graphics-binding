@@ -1,27 +1,25 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FunctionalDependencies #-}
 
 module Graphics.Binding.OpenGL.BufferObject where
 
-import           Foreign
-import           Graphics.Binding.OpenGL.Utils
-import           Graphics.GL.Core45
-import           Graphics.GL.Types
-import           Graphics.Binding.OpenGL.Types
-import           Foreign.Resource
-import           Data.Typeable
-import           Control.Lens
+import Control.Lens
+import Foreign
+import Foreign.Resource
+import Graphics.Binding.OpenGL.Types
+import Graphics.Binding.OpenGL.Utils
+import Graphics.GL.Core45
+import Graphics.GL.Types
 
 -- * Buffer Objects
 newtype BufferName = BufferName
   { getBufferGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Storable)
+  } deriving (Eq, Ord, Storable)
+
+instance Show BufferName where
+  show (BufferName n) = "BufferName " `mappend` show n
 
 instance ForeignName BufferName () where
   genNames_ = genericGLCreate BufferName glCreateBuffers
@@ -31,28 +29,46 @@ instance ForeignName BufferName () where
   deleteNames_ = genericGLDeleteNames getBufferGLuint glDeleteBuffers
 
 newtype BufferSize = BufferSize
-  { bufferObjectSizeInternal :: GLsizeiptr
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferSizeInternal :: GLsizeiptr
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferSize where
+  show (BufferSize n) = "BufferSize " `mappend` show n
 
 newtype BufferOffset = BufferOffset
-  { bufferObjectOffsetInternal :: GLintptr
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferOffsetInternal :: GLintptr
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferOffset where
+  show (BufferOffset n) = "BufferOffset" `mappend` show n
 
 newtype BufferRelOffset = BufferRelOffset
-  { bufferObjectRelOffsetInternal :: GLuint
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferRelOffsetInternal :: GLuint
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferRelOffset where
+  show (BufferRelOffset n) = "BufferRelOffset" `mappend` show n
 
 newtype BufferStride = BufferStride
-  { bufferObjectStrideInternal :: GLsizei
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferStrideInternal :: GLsizei
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferStride where
+  show (BufferStride n) = "BufferStride" `mappend` show n
 
 newtype BufferComponentSize = BufferComponentSize
-  { bufferObjectComponentSize :: GLint
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferComponentSize :: GLint
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferComponentSize where
+  show (BufferComponentSize n) = "BufferComponentSize" `mappend` show n
 
 newtype BufferIndex = BufferIndex
-  { bufferObjectIndexInternal :: GLuint
-  } deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+  { bufferIndexInternal :: GLuint
+  } deriving (Eq, Ord, Num, Real, Enum, Integral)
+
+instance Show BufferIndex where
+  show (BufferIndex n) = "BufferIndex" `mappend` show n
 
 data IntegerHandling
   = Normalized
@@ -147,38 +163,6 @@ marshalBufferMapFlags BufferMapFlags {..}
     bfle  = if _bufferMapFlagsMapFlushExplicit then GL_MAP_FLUSH_EXPLICIT_BIT else 0
     bmun  = if _bufferMapFlagsMapUnsynchronized then GL_MAP_UNSYNCHRONIZED_BIT else 0
 
--- | A 'DynamicBuffer a' is the name of a buffer that by default has only the dynamic bit set,
---   and can only be mapped with the dynamic bit.
-newtype DynamicBuffer a = DynamicBuffer
-  { _getDynamicBufferName :: BufferName
-  } deriving (Eq, Ord, Show)
-
-instance GLWritable a => ForeignName (DynamicBuffer a) () where
-  genName_ _ = do
-    bufo@(BufferName n) <- genName'
-    glNamedBufferStorage n (gSize (Proxy :: Proxy a)) nullPtr bitF
-    return $ DynamicBuffer bufo
-    where
-      bitF = GL_DYNAMIC_STORAGE_BIT
-
-  isName_ = isName_ . _getDynamicBufferName
-
-  deleteNames_ = deleteNames_ . fmap _getDynamicBufferName
-
--- | If we have declared how the contents of a dynamic buffer should be laid out
---   in memory for OpenGL to use, via an instance of 'GLWritable', then we can
---   use this type to have 'BufferSubData' write a value 'a' into the
---   corresponding OpenGL buffer.
-data FullBufferWrite = FullBufferWrite
-  deriving (Eq, Ord, Show)
-
-instance GLWritable a => ForeignWrite FullBufferWrite (DynamicBuffer a) a where
-  writeR_ _ b@(DynamicBuffer n) a = allocaBytes size $ \ptr -> do
-    gPoke ptr a
-    bufferSubData n (fromIntegral size) 0 (castPtr ptr) >> return b
-    where
-      size = gSize (Proxy :: Proxy a)
-
 -- | A buffer can be created with initial data in it.
 initBufferName :: MonadIO m
                  => BufferSize
@@ -187,7 +171,7 @@ initBufferName :: MonadIO m
                  -> m BufferName
 initBufferName size attrib@BufferAttribFlags {..} ptr = do
   bufo@(BufferName n) <- genName'
-  glNamedBufferStorage n (bufferObjectSizeInternal size) ptr bitF
+  glNamedBufferStorage n (bufferSizeInternal size) ptr bitF
   return bufo
   where
     bitF = marshalBufferAttribFlags attrib

@@ -24,7 +24,6 @@ dependencies:
 - gl
 - GLFW-b
 - lens
-- classy-prelude
 - vector
 - linear
 - bytestring

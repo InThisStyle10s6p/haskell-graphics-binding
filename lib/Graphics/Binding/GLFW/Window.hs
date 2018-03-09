@@ -4,7 +4,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -57,11 +56,11 @@ import Graphics.UI.GLFW as X
   , Key(..)
   )
 
-import qualified Graphics.UI.GLFW             as G
 import           Control.Monad.IO.Class
-import           ClassyPrelude
 import           Control.Lens
+import           Data.Foldable
 import           Foreign.Resource
+import qualified Graphics.UI.GLFW             as G
 
 data GLContextVersion = GLContextVersion
   { _versionMajor  :: Int
@@ -204,7 +203,7 @@ instance ForeignResource () GraphicsContextConfig where
           , G.WindowHint'Stereo _graphicsContextStereo
           , G.WindowHint'sRGBCapable _graphicsContextSRGBCapable
           ]
-        forM_ _graphicsContextRefreshRate $ G.windowHint . G.WindowHint'RefreshRate
+        for_ _graphicsContextRefreshRate $ G.windowHint . G.WindowHint'RefreshRate
       free_ _ = G.terminate
 
 data CurrentContext = CurrentContext deriving (Eq, Ord, Show)

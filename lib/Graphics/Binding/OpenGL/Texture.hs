@@ -10,19 +10,22 @@
 
 module Graphics.Binding.OpenGL.Texture where
 
+import Control.Lens
+import Foreign.Resource
+import Foreign.Marshal.Array
 import Graphics.Binding.OpenGL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.GL.Core45
 import Graphics.GL.Types
-import Control.Lens
-import Foreign.Resource
-import Foreign.Marshal.Array
 
 -- * Textures
 
 newtype TextureUnit = TextureUnit
   { getTextureUnitGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show TextureUnit where
+  show (TextureUnit n) = "TextureUnit " `mappend` show n
 
 data TextureTarget1D
   = Texture1D
@@ -70,7 +73,10 @@ data Texture3DAttrib = Texture3DAttrib
 
 newtype TextureObject t = TextureObject
   { textureObjectInternal :: GLuint
-  } deriving (Eq, Ord, Show, Storable)
+  } deriving (Eq, Ord, Storable)
+
+instance TextureTarget t => Show (TextureObject t) where
+  show t@(TextureObject n) = mconcat ["TextureObject", showTarget t, " ", show n]
 
 instance TextureTarget t => ForeignName (TextureObject t) t where
   genNames_ n t = fmap (fmap TextureObject) . liftIO . allocaArray n $
@@ -102,7 +108,7 @@ data PixelFormat
    | PixelBGRAInteger
    | PixelBGR
    | PixelBGRA
-   deriving ( Eq, Ord, Show )
+   deriving (Eq, Ord, Show)
 
 data Pixel1DAttrib = Pixel1DAttrib
   { _pixel1DAttribPixelFormat  :: PixelFormat
@@ -177,6 +183,7 @@ class TextureTarget t where
   marshalTextureTarget :: t -> GLenum
   createTexture  :: MonadIO m => t -> TextureConfig t -> m (TextureObject t)
   textureSubMap :: MonadIO m => TextureObject t -> Int -> PixelConfig t -> Ptr () -> m ()
+  showTarget :: c t -> String
 
 instance TextureTarget TextureTarget1D where
   type TextureConfig TextureTarget1D = Texture1DAttrib
@@ -197,6 +204,8 @@ instance TextureTarget TextureTarget1D where
       pixForm = marshalPixelFormat _pixel1DAttribPixelFormat
       datType = marshalGLDataType _pixel1DAttribPixelType
       width  = fromIntegral _pixel1DAttribPixelWidth
+
+  showTarget _ = "1D"
 
 instance TextureTarget TextureTarget2D where
   type TextureConfig TextureTarget2D = Texture2DAttrib
@@ -224,6 +233,8 @@ instance TextureTarget TextureTarget2D where
       width  = fromIntegral _pixel2DAttribPixelWidth
       height = fromIntegral _pixel2DAttribPixelHeight
 
+  showTarget _ = "2D"
+
 instance TextureTarget TextureTarget3D where
   type TextureConfig TextureTarget3D = Texture3DAttrib
 
@@ -250,6 +261,8 @@ instance TextureTarget TextureTarget3D where
       width  = fromIntegral _pixel3DAttribPixelWidth
       height = fromIntegral _pixel3DAttribPixelHeight
       depth  = fromIntegral _pixel3DAttribPixelDepth
+
+  showTarget _ = "3D"
 
 marshalTextureParameter :: TextureParameter -> GLenum
 marshalTextureParameter = \case

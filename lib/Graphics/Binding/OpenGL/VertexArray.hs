@@ -5,17 +5,20 @@
 
 module Graphics.Binding.OpenGL.VertexArray where
 
+import Graphics.Binding.OpenGL.BufferObject
 import Graphics.Binding.OpenGL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.GL.Core45
 import Graphics.GL.Types
-import Foreign.Resource
 import Foreign.Marshal.Array
-import Graphics.Binding.OpenGL.BufferObject
+import Foreign.Resource
 
 newtype VertexArrayObject = VertexArrayObject
   { getVertexArrayObjectGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Storable)
+  } deriving (Eq, Ord, Storable)
+
+instance Show VertexArrayObject where
+  show (VertexArrayObject n) = "VertexArrayObject " `mappend` show n
 
 instance ForeignName VertexArrayObject () where
   genNames_ n _ = fmap (fmap VertexArrayObject) . liftIO . allocaArray n $
@@ -27,15 +30,24 @@ instance ForeignName VertexArrayObject () where
 
 newtype AttribLocation = AttribLocation
   { getAttribLocationGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show AttribLocation where
+  show (AttribLocation n) = "AttribLocation " `mappend` show n
 
 newtype UniformBlockLocation = UniformBlockLocation
   { _getUniformBlockLocation :: GLuint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show UniformBlockLocation where
+  show (UniformBlockLocation n) = "UniformBlockLocation " `mappend` show n
 
 newtype TextureSamplerLocation = TextureSamplerLocation
   { _getTextureSamplerLocation :: GLuint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show TextureSamplerLocation where
+  show (TextureSamplerLocation n) = "TextureSamplerLocation " `mappend` show n
 
 
 data ActiveVertexArrayObject = ActiveVertexArrayObject

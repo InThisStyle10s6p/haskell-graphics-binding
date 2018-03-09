@@ -1,20 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 
 module Graphics.Binding.OpenGL.Types where
 
-import Graphics.GL.Types
-import Graphics.GL.Core45
+import Data.Typeable
 import Foreign.Ptr
 import Graphics.Binding.OpenGL.Utils
-import Data.Typeable
+import Graphics.GL.Core45
+import Graphics.GL.Types
 
 -- * GL Storable types
 class GLSized a where

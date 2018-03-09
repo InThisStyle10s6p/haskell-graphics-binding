@@ -4,19 +4,22 @@
 
 module Graphics.Binding.OpenGL.PrimitiveUniform where
 
-import Graphics.GL.Types
-import Graphics.GL.Core45
-import Control.Monad.IO.Class
-import Graphics.Binding.OpenGL.Shader
-import Graphics.Binding.OpenGL.Utils
-import Linear
+import           Control.Monad.IO.Class
 import qualified Data.Vector.Storable as VS
+import           Graphics.Binding.OpenGL.Shader
+import           Graphics.Binding.OpenGL.Utils
+import           Graphics.GL.Core45
+import           Graphics.GL.Types
+import           Linear
 
 -- * Primitive uniform operations.
 
 newtype UniformLocation = UniformLocation
   { uniformLocationInternal :: GLint
-  } deriving (Eq, Ord, Show, Num)
+  } deriving (Eq, Ord, Num)
+
+instance Show UniformLocation where
+  show (UniformLocation n) = "UniformLocation " `mappend` show n
 
 class PrimUniform a where
   primMarshal_ :: MonadIO m => Program -> UniformLocation -> a -> m ()

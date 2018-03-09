@@ -6,11 +6,11 @@ module Graphics.Binding.OpenGL.Window where
 
 import Data.ByteString
 import Foreign.Ptr
+import Foreign.Resource
 import Graphics.GL.Types
 import Graphics.GL.Core45
 import Linear
 import Text.Printf
-import Foreign.Resource
 
 -- * Window
 data Face = Front | Back | FrontBack deriving (Eq, Ord, Show)

@@ -1,33 +1,34 @@
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE KindSignatures #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Graphics.Binding.OpenGL.Shader where
 
+import Control.Lens
 import Data.ByteString
 import Data.ByteString.Char8 (useAsCString)
+import Data.Foldable
+import Data.Monoid
+import Data.Typeable
+import Foreign.Resource
 import Graphics.Binding.OpenGL.Types
 import Graphics.Binding.OpenGL.Utils
 import Graphics.GL.Core45
-import Foreign.Resource
 import Graphics.GL.Types
-import Data.Typeable
-import Data.Foldable
-import Data.Monoid
 
 -- * Bare program related things.
 newtype Program = Program
   { getProgramGLuint :: GLuint
-  } deriving (Eq, Ord, Show, Storable)
+  } deriving (Eq, Ord, Storable)
+
+instance Show Program where
+  show (Program n) = "Program " `mappend` show n
 
 instance ForeignName Program () where
   genName_ _ = Program <$> glCreateProgram
@@ -164,7 +165,10 @@ instance ShaderType t => ForeignRead GLDeleteStatus (ShaderStage t) Bool where
 
 newtype ShaderPipeline = ShaderPipeline
   { _getShaderPipelineGLuint :: GLuint
-  } deriving (Eq, Ord, Show)
+  } deriving (Eq, Ord)
+
+instance Show ShaderPipeline where
+  show (ShaderPipeline n) = "ShaderPipeline " `mappend` show n
 
 -- NB supposedly CreateProgramPipelines works with BindProgramPipeline.
 -- We shall see.
@@ -211,3 +215,6 @@ instance ForeignWrite () ShaderPipeline ShaderPipelineSpec where
     traverse_ (writeR ShaderStageSet t) _shaderPipelineSpecGeometryShader
     t ~& ShaderStageSet .$= _shaderPipelineSpecFragmentShader
     return t
+
+mconcat <$> mapM makeLenses
+  [''ShaderPipelineSpec]
