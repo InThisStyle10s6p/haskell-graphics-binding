@@ -14,7 +14,6 @@ import Graphics.GL.Types
 import Graphics.GL.Core45
 import Foreign.Ptr
 import Graphics.Binding.OpenGL.Utils
-import Data.Bits
 import Data.Typeable
 
 -- * GL Storable types
