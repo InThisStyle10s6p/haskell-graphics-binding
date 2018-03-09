@@ -9,7 +9,6 @@
 
 module Graphics.Binding.OpenGL.BufferObject where
 
-import           Graphics.Binding.OpenGL.Synchro
 import           Foreign
 import           Graphics.Binding.OpenGL.Utils
 import           Graphics.GL.Core45
@@ -27,9 +26,9 @@ newtype BufferName = BufferName
 instance ForeignName BufferName () where
   genNames_ = genericGLCreate BufferName glCreateBuffers
 
-  isName_ (BufferName n) = unmarshalGLboolean <$> glIsBuffer n
+  isName_ = genericGLIsName getBufferGLuint glIsBuffer
 
-  deleteNames_ ns = liftIO . withArrayLen ns $ \len ptr -> glDeleteBuffers (fromIntegral len) (castPtr ptr)
+  deleteNames_ = genericGLDeleteNames getBufferGLuint glDeleteBuffers
 
 newtype BufferSize = BufferSize
   { bufferObjectSizeInternal :: GLsizeiptr
@@ -67,14 +66,19 @@ data BufferMapType
   | MapReadWrite
   deriving (Eq, Ord, Show)
 
+-- | The data type 'BufferAttribFlags' indicates what properties we wish an allocated buffer to have.
+--   It corresponds to the 'GLbitfield' parameter of the 'BufferStorage' and 'NamedBufferStorage'
+--   See <https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferStorage.xhtml>
+--   for details on what the flags actually do.
 data BufferAttribFlags = BufferAttribFlags
   { _bufferAttribFlagsMapType       :: BufferMapType
   , _bufferAttribFlagsMapPersistent :: Bool
   , _bufferAttribFlagsMapCoherent   :: Bool
-  , _bufferAttribFlagsDynamic    :: Bool
+  , _bufferAttribFlagsDynamic       :: Bool
   , _bufferAttribFlagsClientStorage :: Bool
   } deriving (Eq, Ord, Show)
 
+-- | By default we have the buffer be as impermissive as possible.
 defaultBufferAttribFlags :: BufferAttribFlags
 defaultBufferAttribFlags = BufferAttribFlags
   { _bufferAttribFlagsMapType       = MapNone
@@ -99,6 +103,11 @@ marshalBufferAttribFlags BufferAttribFlags {..}
     bdyna = if _bufferAttribFlagsDynamic then GL_DYNAMIC_STORAGE_BIT else 0
     bclie = if _bufferAttribFlagsClientStorage then GL_CLIENT_STORAGE_BIT else 0
 
+-- | The data type 'BufferMapFlags' indicates what properties we wish a mapped buffer to have.
+--   It corresponds to the 'GLbitfield' parameter of the 'MapBufferRange' and 'MapNamedBufferRange' functions.
+--   See <https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBufferRange.xhtml>
+--   for details on what the flags actually do. Note that the map flags have to match the attribute flags
+--   that were set, in certain ways.
 data BufferMapFlags = BufferMapFlags
   { _bufferMapFlagsMapType             :: BufferMapType
   , _bufferMapFlagsMapPersistent       :: Bool
@@ -109,6 +118,7 @@ data BufferMapFlags = BufferMapFlags
   , _bufferMapFlagsMapUnsynchronized   :: Bool
   } deriving (Eq, Ord, Show)
 
+-- | By default we have the mapped buffer be as impermissive as possible.
 defaultBufferMapFlags :: BufferMapFlags
 defaultBufferMapFlags = BufferMapFlags
   { _bufferMapFlagsMapType             = MapNone
@@ -137,6 +147,8 @@ marshalBufferMapFlags BufferMapFlags {..}
     bfle  = if _bufferMapFlagsMapFlushExplicit then GL_MAP_FLUSH_EXPLICIT_BIT else 0
     bmun  = if _bufferMapFlagsMapUnsynchronized then GL_MAP_UNSYNCHRONIZED_BIT else 0
 
+-- | A 'DynamicBuffer a' is the name of a buffer that by default has only the dynamic bit set,
+--   and can only be mapped with the dynamic bit.
 newtype DynamicBuffer a = DynamicBuffer
   { _getDynamicBufferName :: BufferName
   } deriving (Eq, Ord, Show)
@@ -153,6 +165,10 @@ instance GLWritable a => ForeignName (DynamicBuffer a) () where
 
   deleteNames_ = deleteNames_ . fmap _getDynamicBufferName
 
+-- | If we have declared how the contents of a dynamic buffer should be laid out
+--   in memory for OpenGL to use, via an instance of 'GLWritable', then we can
+--   use this type to have 'BufferSubData' write a value 'a' into the
+--   corresponding OpenGL buffer.
 data FullBufferWrite = FullBufferWrite
   deriving (Eq, Ord, Show)
 
@@ -163,8 +179,7 @@ instance GLWritable a => ForeignWrite FullBufferWrite (DynamicBuffer a) a where
     where
       size = gSize (Proxy :: Proxy a)
 
-------
-
+-- | A buffer can be created with initial data in it.
 initBufferName :: MonadIO m
                  => BufferSize
                  -> BufferAttribFlags
