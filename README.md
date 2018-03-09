@@ -10,12 +10,12 @@ The information on the latest OpenGL versions online can be incomplete. I have
 noticed that many things (even in the OpenGL 4 reference pages, but especially
 in online tutorials, books, and the Khronos OpenGL wiki) are written as though
 more recent developments in OpenGL have not taken place, if not outright
-suggesting the use of deprecated or removed features of OpenGL. ^[The OpenGL and
-GLSL specifications are quite useful, as are the discussions in the proposals
-for language extensions that eventually make it into Core.] I am still new to
-graphics programming, but here are some of my current practices, as well as some
-things that have caused me grief when writing OpenGL applications using Core
-4.5.
+suggesting the use of deprecated or removed features of OpenGL. The OpenGL and
+GLSL specifications are quite useful in this regard, as are the discussions in
+the proposals for language extensions that eventually make it into Core. I am
+still new to graphics programming, but here are some of my current practices, as
+well as some things that have caused me grief when writing OpenGL applications
+using Core 4.5.
 
 - Any mention of targets can be disregarded, except when binding a buffer to an
   indexed location as in the function `glBindBufferRange`. All other functions
