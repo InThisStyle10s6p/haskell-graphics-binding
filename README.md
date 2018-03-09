@@ -21,15 +21,15 @@ things that have caused me grief when writing OpenGL applications using Core
   indexed location as in the function `glBindBufferRange`. All other functions
   that use them can be replaced by their direct state access equivalents. The
   convention for this seems to be:
--- Any name creation function with *Gen* in it can been replaced by *Create*.
-   This eliminates the need to bind a buffer to a target before using it in some
-   way. See `glGenBuffers` vs `glCreateBuffers`.
--- Any other function that requires a buffer to be bound to a target can be
-   replaced by its *Name* equivalent. See `glBufferSubData` vs
-   `glNamedBufferSubData`.
--- The various properties of a vertex array object can be set using the
-   `VertexArray` family of functions. See the confusing case of the new
-   `glEnableVertexArrayAttrib` vs the old `glEnableVertexAttribArray`.
+  - Any name creation function with *Gen* in it can been replaced by *Create*.
+    This eliminates the need to bind a buffer to a target before using it in some
+    way. See `glGenBuffers` vs `glCreateBuffers`.
+  - Any other function that requires a buffer to be bound to a target can be
+    replaced by its *Name* equivalent. See `glBufferSubData` vs
+    `glNamedBufferSubData`.
+  - The various properties of a vertex array object can be set using the
+    `VertexArray` family of functions. See the confusing case of the new
+    `glEnableVertexArrayAttrib` vs the old `glEnableVertexAttribArray`.
 - Variable size buffers seem to be discouraged. To create buffers with a static
   size, use `glNamedBufferStorage` and update these buffers with
   `glNamedBufferSubData` and `glMapNamedBufferRange`.
