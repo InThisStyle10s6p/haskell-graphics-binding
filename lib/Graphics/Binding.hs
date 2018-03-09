@@ -5,8 +5,6 @@
 
 module Graphics.Binding
   ( module X
-  , UniformBlock(..)
-  , bindBlock
   , bindFullDynamicUniformBuffer
   ) where
 

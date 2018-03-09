@@ -23,8 +23,6 @@ import Graphics.GL.Types
 import Data.Typeable
 import Data.Foldable
 import Data.Monoid
-import Foreign.C.String
-import Graphics.Binding.OpenGL.VertexArray
 
 -- * Bare program related things.
 newtype Program = Program
@@ -91,16 +89,6 @@ instance ForeignUpdate () CurrentProgram (Maybe Program) where
 
 class ProgramLike t where
   toProgram :: t -> Program
-
-newtype UniformBlockNameLocation = UniformBlockNameLocation String
-  deriving (Eq, Ord, Show)
-
-instance ForeignRead UniformBlockNameLocation Program (Maybe UniformBlockLocation) where
-  readR_ (UniformBlockNameLocation str) (Program n) = withCString str $ \strptr -> do
-    i <- glGetUniformBlockIndex n strptr
-    if i == GL_INVALID_INDEX
-      then return Nothing
-      else return $ Just (UniformBlockLocation i)
 
 -- * Shader stages
 
@@ -172,9 +160,6 @@ instance ShaderType t => ForeignRead GLValidateStatus (ShaderStage t) (Maybe Byt
   readR_ t = readR_ t . toProgram
 
 instance ShaderType t => ForeignRead GLDeleteStatus (ShaderStage t) Bool where
-  readR_ t = readR_ t . toProgram
-
-instance ShaderType t => ForeignRead UniformBlockNameLocation (ShaderStage t) (Maybe UniformBlockLocation) where
   readR_ t = readR_ t . toProgram
 
 newtype ShaderPipeline = ShaderPipeline
