@@ -130,7 +130,12 @@ import Graphics.Binding.OpenGL.Texture as X
   , pixelYOffset
   , pixelZOffset
   , TextureParameter(..)
-  , TextureTarget
+  , TextureTarget( TextureConfig
+                 , PixelConfig
+                 , createTexture
+                 , textureSubMap
+                 , showTarget
+                 )
   , TextureSampler(..)
   , textureParameterf
   , textureParameteri
