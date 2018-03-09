@@ -69,7 +69,7 @@ import Graphics.Binding.OpenGL.Rendering as X
   , clearBufferDepth
   , defaultClearBuffer
   , PrimitiveMode(..)
-  , IndexType
+  , IndexType(..)
   , clear
   , drawElements
   )
