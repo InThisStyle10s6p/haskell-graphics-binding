@@ -8,7 +8,7 @@ module Graphics.Binding
   ( module X
   , bindFullDynamicUniformBuffer
   , DynamicBuffer
-  , FullBufferWrite
+  , FullBufferWrite(..)
   ) where
 
 import Graphics.GL.Types as X
