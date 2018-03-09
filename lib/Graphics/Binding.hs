@@ -42,13 +42,5 @@ import Graphics.Binding.GLFW.Window as X
 import Control.Monad.IO.Class
 import Data.Typeable
 
-
-
-class UniformBlock a where
-  bindBlock_ :: Program -> a -> IO ()
-
-bindBlock :: (MonadIO m, UniformBlock a, ProgramLike b) => b -> a -> m ()
-bindBlock prg = liftIO . bindBlock_ (toProgram prg)
-
 bindFullDynamicUniformBuffer :: forall a m b. (MonadIO m, GLWritable a) => b -> UniformBufferBindingLocation -> DynamicBuffer a -> m b
 bindFullDynamicUniformBuffer b loc (DynamicBuffer name) = bindUniformBuffer loc name 0 (gSize (Proxy :: Proxy a)) >> return b

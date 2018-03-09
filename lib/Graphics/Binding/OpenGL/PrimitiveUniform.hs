@@ -12,7 +12,7 @@ import Graphics.Binding.OpenGL.Utils
 import Linear
 import qualified Data.Vector.Storable as VS
 
--- * Primitive uniform operations. Note that everything is transposed by default.
+-- * Primitive uniform operations.
 
 newtype UniformLocation = UniformLocation
   { uniformLocationInternal :: GLint
@@ -111,74 +111,74 @@ instance PrimUniform (V4 GLdouble) where
 -- Column major!
 
 instance PrimUniform (M22 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M23 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x3fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x3fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x3fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x3fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M24 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x4fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x4fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x4fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x4fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M32 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x2fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x2fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x2fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x2fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M33 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M34 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x4fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x4fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x4fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x4fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M42 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x2fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x2fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x2fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x2fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M43 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x3fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x3fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x3fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x3fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M44 GLfloat) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4fv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4fv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4fv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4fv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M22 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M23 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x3dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x3dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x3dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x3dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M24 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x4dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x4dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix2x4dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix2x4dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M32 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x2dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x2dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x2dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x2dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M33 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M34 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x4dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x4dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix3x4dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix3x4dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M42 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x2dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x2dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x2dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x2dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M43 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x3dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x3dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4x3dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4x3dv n m len GL_FALSE (castPtr ptr)
 
 instance PrimUniform (M44 GLdouble) where
-  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4dv n m 1 GL_TRUE (castPtr ptr)
-  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4dv n m len GL_TRUE (castPtr ptr)
+  primMarshal_ (Program n) (UniformLocation m) v = liftIO . with v $ \ptr -> glProgramUniformMatrix4dv n m 1 GL_FALSE (castPtr ptr)
+  primMarshalArray_ (Program n) (UniformLocation m) vs = unsafeWithVecLen vs $ \len ptr -> glProgramUniformMatrix4dv n m len GL_FALSE (castPtr ptr)
 
