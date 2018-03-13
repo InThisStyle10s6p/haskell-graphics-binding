@@ -55,6 +55,25 @@ import Graphics.Binding.OpenGL.BufferObject as X
   , copyBufferSubData
   )
 
+import Graphics.Binding.OpenGL.Framebuffer as X
+  ( Framebuffer
+  , defaultFramebuffer
+  , FramebufferDefault(..)
+  , Renderbuffer
+  , RenderbufferInternalFormat
+  , renderbufferStorageMultisample
+  , renderbufferStorage
+  , FramebufferAttachment(..)
+  , RenderbufferAttachPoint(..)
+  , MipmapLevel
+  , TextureLayer
+  , TextureAttachPoint(..)
+  , TextureLayerAttachPoint(..)
+  , FramebufferStatus(..)
+  , FramebufferStatusError(..)
+  , FramebufferTarget(..)
+  )
+
 import Graphics.Binding.OpenGL.PrimitiveUniform as X
   ( UniformLocation(..)
   , PrimUniform(..)

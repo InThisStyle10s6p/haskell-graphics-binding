@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7a09b118d5189f402403f9ea579c8047f314f60205d1ea0c643104fc8fb9e71c
+-- hash: 5ae71e42923f09208af6af407efacf8295311303b265387ae714a0219f940b7f
 
 name:           haskell-graphics-binding
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
   other-modules:
       Graphics.Binding.GLFW.Window
       Graphics.Binding.OpenGL.BufferObject
+      Graphics.Binding.OpenGL.Framebuffer
       Graphics.Binding.OpenGL.PrimitiveUniform
       Graphics.Binding.OpenGL.Rendering
       Graphics.Binding.OpenGL.Shader

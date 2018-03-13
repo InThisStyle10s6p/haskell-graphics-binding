@@ -65,6 +65,12 @@ instance ForeignWrite () ActiveVertexArrayObject (Maybe VertexArrayObject) where
     Nothing -> return ActiveVertexArrayObject
     Just (VertexArrayObject n) -> glBindVertexArray n >> return ActiveVertexArrayObject
 
+data VertexArrayAttribCategory
+  = VertexArrayIntegral
+  | VertexArrayFloating IntegerHandling
+  | VertexArrayDouble
+  deriving (Eq, Ord, Show)
+
 vertexArrayAttribBinding :: MonadIO m => VertexArrayObject -> AttribLocation -> AttribLocation -> m ()
 vertexArrayAttribBinding (VertexArrayObject n) (AttribLocation attribindex) (AttribLocation bindindex)
   = glVertexArrayAttribBinding n attribindex bindindex
@@ -73,13 +79,18 @@ vertexArrayVertexBuffer :: MonadIO m => VertexArrayObject -> AttribLocation -> B
 vertexArrayVertexBuffer (VertexArrayObject n) (AttribLocation bindindx) (BufferName bufobj) offset stride
   = glVertexArrayVertexBuffer n bindindx bufobj (fromIntegral offset) (fromIntegral stride)
 
-vertexArrayAttribFormat :: MonadIO m => VertexArrayObject -> AttribLocation -> BufferComponentSize -> GLDataType -> IntegerHandling -> BufferRelOffset -> m ()
-vertexArrayAttribFormat (VertexArrayObject vaobj) (AttribLocation attribindx) size typ integerHandling relOffset
-  = glVertexArrayAttribFormat vaobj attribindx (fromIntegral size) (marshalGLDataType typ) handleFlag (fromIntegral relOffset)
+vertexArrayAttribFormat :: MonadIO m => VertexArrayObject -> VertexArrayAttribCategory -> AttribLocation -> BufferComponentSize -> GLDataType -> BufferRelOffset -> m ()
+vertexArrayAttribFormat (VertexArrayObject vaobj) cat (AttribLocation attribindx) size typ relOffset
+  = func vaobj attribindx (fromIntegral size) (marshalGLDataType typ) (fromIntegral relOffset)
   where
-    handleFlag = case integerHandling of
-      Normalized -> GL_TRUE
-      NotNormalized -> GL_FALSE
+    func = case cat of
+      VertexArrayIntegral -> glVertexArrayAttribIFormat
+      VertexArrayFloating integerHandling ->
+        let handleFlag = case integerHandling of
+              Normalized -> GL_TRUE
+              NotNormalized -> GL_FALSE
+        in  \a b c d -> glVertexArrayAttribFormat a b c d handleFlag
+      VertexArrayDouble   -> glVertexArrayAttribLFormat
 
 vertexArrayAttribCapability :: MonadIO m => VertexArrayObject -> AttribLocation -> Capability -> m ()
 vertexArrayAttribCapability (VertexArrayObject n) (AttribLocation loc) = \case
