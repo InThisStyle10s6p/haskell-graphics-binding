@@ -198,7 +198,7 @@ import Graphics.Binding.OpenGL.VertexArray as X
   , vertexArrayVertexBuffer
   , vertexArrayAttribFormat
   , vertexArrayAttribCapability
-  , VertexArrayAttribCategory
+  , VertexArrayAttribCategory(..)
   , bindElementBuffer
   )
 
